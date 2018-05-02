@@ -6,13 +6,14 @@
 * CPSC 224-01, Spring 2018
 * Programming Assignment #6
 * class Yahtzee.java
-
 * @author Alana Dillinger
-
 * @version v1.0 3/23/2018
 */
 
 import java.util.*;
+
+import javax.swing.JPanel;
+
 import java.io.*;
 
 public class Game extends Space{
@@ -27,46 +28,71 @@ public class Game extends Space{
   /**
   * Yahtzee constructor stores an array of dice used to play the game
   */
-  public Game(){
-    System.out.println("How many player are there? ");
-    numberOfPlayers = input.next();
+  public Game(int numberOfPlayers){
+    //System.out.println("How many player are there? ");
+    // Call get number of players panel class which returns numberOfPlayers
+	  
+	  this.numberOfPlayers = numberOfPlayers;
+	  // set the numbers of players later
+ //input.nextInt(); //input.nextInt becomes call to getPlayer panel class
+    players = new Player[numberOfPlayers];
     for(int i = 0; i < numberOfPlayers; i++){
-      players[i] = new Player();
+      //create new panel to input the users name panel returns user name
+      //System.out.print("Player Name: ");
+    	//*************** need function in NumberOfPlayers to get player names
+    	// return the array of players? Or just one player
+      players[i] = new Player(i + 1);
     }
+    
+    
+    
+    
   }
 
   /**
     * Begins a game of Yahtzee and at the end asks the user if they would like to play again
     */
   public void playGame(){
-    int numberOfTurns = 0;
-    while (numberOfTurns <= 7) // while you haven't scored everything
-    {
-      for(int i = 0; i < numberOfPlayers; i++){
-        players[i].takeTurn();
-        players[i].score();
-      }
-      numberOfTurns++;
-    }
-  }
-
-  /**
-    * Simulates a turn of the game Yahtzee
-    * Rolls the dice three times allowing users to select which dice they would
-    * like to keep and which they would like to reroll and scores the game
-    */
-  private void takeTurn(){
-    for(int i = 0; i < numberOfPlayers; i++){
-      players[i].takeTurn();
-    }
+	  int numberOfTurn = 1;
+	  while(numberOfTurn<=7){
+	  CompletedListener completedListener = new CompletedListener() {
+  			@Override
+  			public void completed(Object data) {
+  				Integer index = (Integer)data;
+  					
+  				// after the roll panel we need a panel to display the dice.
+  				// this should be in the takeTurn function in the Player class
+  				players[index].takeTurn(players[index]);
+  				if(players[index].playerCard.checkForWinner())
+  					endGame();
+  				if(!players[index].score(players[index]) && index + 1 < players.length){
+  					new RollPanel(players[index + 1], index + 1, this);
+  				}
+  			}
+  		};
+  	
+  		new RollPanel(players[0], 0, completedListener); // need to pass in numberofturns -1 but I get an error
+  	    // I think we need some kind of action listener so it doesnt create all 7 frames at once
+  		numberOfTurn++;
+	  }
+	  endGame();
   }
 
     /**
       * Creates a new scoreboard which is used to score the game that was just played
       */
-  private void scoreGame(){
-    //hand need to be sorted to check for straights
-    for(int i = 0; i < numberOfPlayers; i++){
-      player.scoreHand();
+  private void endGame(){
+    // I DONT KNOW WHAT COMPLETED LISTENER DOES
+	  //HELPPPP
+    FinalScorecardPanel finalScores = new FinalScorecardPanel(players);   
+    
+    CompletedListener completedListener = new CompletedListener() {
+			@Override
+			public void completed(Object data) {
+				
+					new FinalScorecardPanel(players);
+			}
+      };
+      finalScores.setVisible(true);
   }
 }
